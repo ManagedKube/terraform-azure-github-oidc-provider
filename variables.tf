@@ -60,6 +60,6 @@ variable "azure_resource_group_name" {
   description = "The Azure resource group"
 }
 
-variable "github" {
+# variable "github" {
   
-}
+# }

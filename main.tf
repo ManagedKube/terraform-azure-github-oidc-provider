@@ -33,9 +33,10 @@ resource "azuread_application_federated_identity_credential" "app" {
   description           = "The federated identity used to federate K8s with Azure AD with the app service running in k8s ${local.base_name} ${var.environment_name}"
   # Doc for the `audiences` string: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure#adding-the-federated-credentials-to-azure
   audiences             = ["api://AzureADTokenExchange"]
-  issuer                = var.oidc_k8s_issuer_url
+  issuer                = "https://token.actions.githubusercontent.com" # var.oidc_k8s_issuer_url
   # Doc for the `subject` string: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#configuring-the-subject-in-your-cloud-provider
-  subject               = "repo:octo-org/octo-repo:ref:refs/heads/demo-branch"
+  subject               = "repo:intacct/do-infrastructure:pull_request"
+    #"repo:octo-org/octo-repo:ref:refs/heads/demo-branch"
     #"system:serviceaccount:${var.k8s_namespace}:${local.service_account_name}"
 }
 
@@ -59,12 +60,40 @@ resource "azuread_application_federated_identity_credential" "app" {
 ## * Azure portal -> Azure DNS -> <the zone in question> -> Access Control (IAM) -> Role Assignment
 ## * The "external-dns-<env>" service principal should be in this list
 ##
-resource "azurerm_role_assignment" "app_storage_contributor" {
-  ## Scope to for assignment
-  scope                = var.azure_dns_id
-  ## The role name (pre-defined built in azure roles)
-  ## Use the "role_definition_id" var to provide it with a custom role definition (see terraform doc for this resource for more informations)
-  role_definition_name = var.role_definition_name
-  ## The principal to assign it to
-  principal_id         = azuread_service_principal.app.id
+# resource "azurerm_role_assignment" "app_storage_contributor" {
+#   ## Scope to for assignment
+#   scope                = azuread_application.app.object_id
+#   ## The role name (pre-defined built in azure roles)
+#   ## Use the "role_definition_id" var to provide it with a custom role definition (see terraform doc for this resource for more informations)
+#   role_definition_name = var.role_definition_name
+#   ## The principal to assign it to
+#   principal_id         = azuread_service_principal.app.id
+# }
+
+
+data "azurerm_subscription" "primary" {
+}
+
+resource "azurerm_role_definition" "example" {
+#   role_definition_id = "00000000-0000-0000-0000-000000000000"
+  name               = "my-custom-role-definition"
+  scope              = data.azurerm_subscription.primary.id
+
+  permissions {
+    # See the Terraform resource azurerm_role_definition for more info on
+    # what "actions" are possible
+    actions     = ["*"]
+    not_actions = []
+  }
+
+  assignable_scopes = [
+    data.azurerm_subscription.primary.id,
+  ]
+}
+
+resource "azurerm_role_assignment" "example" {
+  name               = azurerm_role_definition.example.role_definition_id
+  scope              = data.azurerm_subscription.primary.id
+  role_definition_id = azurerm_role_definition.example.role_definition_resource_id
+  principal_id       = azuread_service_principal.app.id
 }
