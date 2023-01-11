@@ -74,26 +74,33 @@ resource "azuread_application_federated_identity_credential" "app" {
 data "azurerm_subscription" "primary" {
 }
 
-resource "azurerm_role_definition" "example" {
-#   role_definition_id = "00000000-0000-0000-0000-000000000000"
-  name               = "my-custom-role-definition"
-  scope              = data.azurerm_subscription.primary.id
-
-  permissions {
-    # See the Terraform resource azurerm_role_definition for more info on
-    # what "actions" are possible
-    actions     = ["*"]
-    not_actions = []
-  }
-
-  assignable_scopes = [
-    data.azurerm_subscription.primary.id,
-  ]
+resource "azurerm_role_assignment" "this" {
+#   name                 = azurerm_role_definition.example.role_definition_id
+  scope                = data.azurerm_subscription.primary.id
+  role_definition_name = "Owner" #"Contributor"
+  principal_id         = azuread_service_principal.app.id
 }
 
-resource "azurerm_role_assignment" "example" {
-  name               = azurerm_role_definition.example.role_definition_id
-  scope              = data.azurerm_subscription.primary.id
-  role_definition_id = azurerm_role_definition.example.role_definition_resource_id
-  principal_id       = azuread_service_principal.app.id
-}
+# resource "azurerm_role_definition" "example" {
+# #   role_definition_id = "00000000-0000-0000-0000-000000000000"
+#   name               = "my-custom-role-definition"
+#   scope              = data.azurerm_subscription.primary.id
+
+#   permissions {
+#     # See the Terraform resource azurerm_role_definition for more info on
+#     # what "actions" are possible
+#     actions     = ["*"]
+#     not_actions = []
+#   }
+
+#   assignable_scopes = [
+#     data.azurerm_subscription.primary.id,
+#   ]
+# }
+
+# resource "azurerm_role_assignment" "example" {
+#   name               = azurerm_role_definition.example.role_definition_id
+#   scope              = data.azurerm_subscription.primary.id
+#   role_definition_id = azurerm_role_definition.example.role_definition_resource_id
+#   principal_id       = azuread_service_principal.app.id
+# }
