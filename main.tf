@@ -13,13 +13,51 @@ data "azurerm_subscription" "current" {
 ## Setting up the Azure OIDC Federation
 ################################################
 
+data "azuread_application_published_app_ids" "well_known" {}
+
+resource "azuread_service_principal" "msgraph" {
+  application_id = data.azuread_application_published_app_ids.well_known.result.MicrosoftGraph
+  use_existing   = true
+}
+
 ## Azure AD application that represents the app
 resource "azuread_application" "app" {
   display_name = "${local.base_name}-${var.environment_name}"
+
+  # Based on: https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/app_role_assignment#example-usage
+  required_resource_access {
+    resource_app_id = data.azuread_application_published_app_ids.well_known.result.MicrosoftGraph
+
+    # resource_access {
+    #   id   = azuread_service_principal.msgraph.app_role_ids["User.Read.All"]
+    #   type = "Role"
+    # }
+
+    # resource_access {
+    #   id   = azuread_service_principal.msgraph.oauth2_permission_scope_ids["User.ReadWrite"]
+    # #   type = "Scope"
+    #   type = "Role"
+    # }
+
+    # resource_access {
+    #   id   = azuread_service_principal.msgraph.app_role_ids["Application.ReadWrite.All"]
+    #   type = "Scope"
+    # }
+    resource_access {
+      id   = azuread_service_principal.msgraph.app_role_ids["Application.ReadWrite.All"]
+      type = "Role"
+    }
+  }
 }
 
 resource "azuread_service_principal" "app" {
   application_id = azuread_application.app.application_id
+}
+
+resource "azuread_app_role_assignment" "example" {
+  app_role_id         = azuread_service_principal.msgraph.app_role_ids["User.Read.All"]
+  principal_object_id = azuread_service_principal.app.object_id
+  resource_object_id  = azuread_service_principal.msgraph.object_id
 }
 
 resource "azuread_service_principal_password" "app" {
@@ -77,9 +115,35 @@ data "azurerm_subscription" "primary" {
 resource "azurerm_role_assignment" "this" {
 #   name                 = azurerm_role_definition.example.role_definition_id
   scope                = data.azurerm_subscription.primary.id
-  role_definition_name = "Owner" #"Contributor"
+  role_definition_name = "Contributor" # "Owner"
   principal_id         = azuread_service_principal.app.id
 }
+
+# resource "azurerm_role_assignment" "graph_assignment" {
+# #   name                 = azurerm_role_definition.example.role_definition_id
+#   scope                = data.azurerm_subscription.primary.id
+#   role_definition_name = "Application.ReadWrite.All" #"Owner"
+#   principal_id         = azuread_service_principal.app.id
+# }
+
+# data "azuread_application_published_app_ids" "well_known" {}
+
+# resource "azuread_service_principal" "msgraph" {
+#   application_id = data.azuread_application_published_app_ids.well_known.result.MicrosoftGraph
+#   use_existing   = true
+# }
+
+# resource "azuread_app_role_assignment" "msgraph_role" {
+# #   app_role_id         = azuread_service_principal.msgraph.app_role_ids["Application.ReadWrite.All"]
+# #   principal_object_id = azuread_service_principal.example.object_id
+# #   resource_object_id  = azuread_service_principal.msgraph.object_id
+
+#   app_role_id         = azuread_service_principal.app.app_role_ids["User.Read.All"]
+#   principal_object_id = azuread_service_principal.app.object_id
+#   resource_object_id  = azuread_service_principal.msgraph.object_id
+# }
+
+# Application.ReadWrite.All
 
 # resource "azurerm_role_definition" "example" {
 # #   role_definition_id = "00000000-0000-0000-0000-000000000000"
