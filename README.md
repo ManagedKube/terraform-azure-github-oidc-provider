@@ -38,3 +38,17 @@ https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/ser
 
 There are some nuance to it like you have to specify the `use_oidc=true` key/val in the provider and
 backend.
+
+# ACTION REQUIRED AFTER APPLYING THIS
+Unfortunately, there is a manual process after applying this to finish granting access to this new
+github action azure application that has federated OIDC access to your Azure account.  You will need
+to press the button to grant the Azure Application access.
+
+In the Azure Web Console:
+* Search for: App registration
+* Go under the All application tab
+* Click on the application name (for example: github-actions-oidc-dev)
+* On the left under Manage click on API permissions
+
+This Terraform created this App registration and the permissions but it requires a human user to click on
+the "Grant admin consent for <subscription name>" button in the middle of the page.
