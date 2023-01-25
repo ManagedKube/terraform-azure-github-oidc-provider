@@ -4,6 +4,9 @@ Github Action OIDC Setup for Azure
 # Creating a service principal with a Federated Credential to use OIDC based authentication
 It is essentially following these instructions but via Terraform: https://github.com/marketplace/actions/azure-login#configure-a-service-principal-with-a-federated-credential-to-use-oidc-based-authentication
 
+# Azure permissions required to run this Terraform
+This Terraform will have to be ran locally by a user with sufficient permissions to create an Azure App Registration.  Instructions/documentation on the permissions needed are here: https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#permissions-required-for-registering-an-app
+
 # Gather info for the Github Actions inputs
 These items will be required for the Github Actions inputs:
 * https://github.com/marketplace/actions/azure-login#sample-workflow-that-uses-azure-login-action-using-oidc-to-run-az-cli-linux
