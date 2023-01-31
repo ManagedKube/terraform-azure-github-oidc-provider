@@ -7,6 +7,10 @@ It is essentially following these instructions but via Terraform: https://github
 # Azure permissions required to run this Terraform
 This Terraform will have to be ran locally by a user with sufficient permissions to create an Azure App Registration.  Instructions/documentation on the permissions needed are here: https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#permissions-required-for-registering-an-app
 
+The user that is running this terraform will also need to have the `Application Administrator`
+added to the Active Directoy user:
+* https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference
+
 # Gather info for the Github Actions inputs
 These items will be required for the Github Actions inputs:
 * https://github.com/marketplace/actions/azure-login#sample-workflow-that-uses-azure-login-action-using-oidc-to-run-az-cli-linux
