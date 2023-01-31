@@ -11,6 +11,11 @@ The user that is running this terraform will also need to have the `Application 
 added to the Active Directoy user:
 * https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference
 
+It actually looks like you need `Global Administrator` permission for the user to be able to 
+successfully run this and in particular to perform the TF `app_role_assignment`:
+* https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/app_role_assignment#api-permissions
+* This was the only resource that needed the `Global Administrator` permissions
+
 # Gather info for the Github Actions inputs
 These items will be required for the Github Actions inputs:
 * https://github.com/marketplace/actions/azure-login#sample-workflow-that-uses-azure-login-action-using-oidc-to-run-az-cli-linux
