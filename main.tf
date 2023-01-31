@@ -37,7 +37,7 @@ resource "azuread_service_principal" "app" {
   application_id = azuread_application.app.application_id
 }
 
-resource "azuread_app_role_assignment" "example" {
+resource "azuread_app_role_assignment" "this" {
   app_role_id         = azuread_service_principal.msgraph.app_role_ids["User.Read.All"]
   principal_object_id = azuread_service_principal.app.object_id
   resource_object_id  = azuread_service_principal.msgraph.object_id
