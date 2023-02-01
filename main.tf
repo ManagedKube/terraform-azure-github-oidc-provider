@@ -49,14 +49,15 @@ resource "azuread_service_principal_password" "app" {
 
 ## Azure AD federated identity used to federate kubernetes with Azure AD
 resource "azuread_application_federated_identity_credential" "app" {
+  count                 = length(var.federated_identity_credential)
   application_object_id = azuread_application.app.object_id
-  display_name          = "fed-identity-${local.base_name}-${var.environment_name}"
+  display_name          = "fed-identity-${local.base_name}-${var.environment_name}-${var.federated_identity_credential[count.index].name_postfix}"
   description           = "The federated identity used to federate K8s with Azure AD with the app service running in k8s ${local.base_name} ${var.environment_name}"
   # Doc for the `audiences` string: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure#adding-the-federated-credentials-to-azure
-  audiences             = ["api://AzureADTokenExchange"]
-  issuer                = "https://token.actions.githubusercontent.com" # var.oidc_k8s_issuer_url
+  audiences             = var.federated_identity_credential[count.index].audiences
+  issuer                = var.federated_identity_credential[count.index].issuer
   # Doc for the `subject` string: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#configuring-the-subject-in-your-cloud-provider
-  subject               = "repo:intacct/do-infrastructure:pull_request"
+  subject               = var.federated_identity_credential[count.index].subject
 }
 
 data "azurerm_subscription" "primary" {

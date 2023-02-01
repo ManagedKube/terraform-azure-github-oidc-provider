@@ -21,3 +21,24 @@ variable "azure_resource_group_name" {
   default     = null
   description = "The Azure resource group"
 }
+
+variable "federated_identity_credential" {
+  type        = any
+  description = "The Azure federated_identity_credential"
+  default     = [
+    {
+      name_postfix = "pull_request"
+      description  = "The federated identity used to federate K8s with Azure AD with the app service running in k8s"
+      audiences    = ["api://AzureADTokenExchange"]
+      issuer       = "https://token.actions.githubusercontent.com"
+      subject      = "repo:ManagedKube/kubernetes-ops:pull_request" # repo:<github org>/<github repo name>:<action>
+    },
+    {
+      name_postfix = "master"
+      description  = "The federated identity used to federate K8s with Azure AD with the app service running in k8s"
+      audiences    = ["api://AzureADTokenExchange"]
+      issuer       = "https://token.actions.githubusercontent.com"
+      subject      = "repo:ManagedKube/kubernetes-ops:ref:refs/heads/master"
+    },
+  ]
+}
