@@ -30,6 +30,12 @@ resource "azuread_application" "app" {
       id   = azuread_service_principal.msgraph.app_role_ids["Application.ReadWrite.All"]
       type = "Role"
     }
+
+    ## Access to create Azure Active Directory Groups
+    resource_access {
+      id   = azuread_service_principal.msgraph.app_role_ids["Group.ReadWrite.All"]
+      type = "Role"
+    }
   }
 }
 
