@@ -12,8 +12,8 @@ variable "oidc_k8s_issuer_url" {
 
 variable "role_definition_name" {
   type        = string
-  default     = "Contributor"
-  description = "The pre-defined azure role to use; Contributor, Owner, etc"
+  default     = "Owner"
+  description = "The pre-defined azure role to use; Contributor, Owner, etc.  Owners is needed b/c it will need to assign roles and even the Contributor role does not have this access."
 }
 
 variable "azure_resource_group_name" {
